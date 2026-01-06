@@ -36,7 +36,7 @@ public class MochiGaugeState : MonoBehaviour
     {
         // 増加値 = ( 基礎値 + コンボ値 + こねこね値 ) * クリティカル倍率
         // コンボ値 = 100 * (1 + コンボ数 / 10)
-        float comboValue = 100.0f * (1.0f + _poundGauge._comboCount / 10.0f);
+        float comboValue = 50.0f * (1.0f + _poundGauge._comboCount / 10.0f);
         float addValue = (_baseIncreaseValue + comboValue + kneadBonus) * scaleCritical;
 
         _nowValue += addValue;

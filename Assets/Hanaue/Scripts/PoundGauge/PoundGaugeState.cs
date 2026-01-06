@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,10 +17,7 @@ public class PoundGaugeState : MonoBehaviour
     }
     public State _state;
 
-    // 増加処理
-    // 初期化処理
-    // クリックされた処理
-
+    // Slider
     private Slider _slider;
 
     [Header("----- 手動で設定 -----")]
@@ -49,14 +47,41 @@ public class PoundGaugeState : MonoBehaviour
     public float _criticalValue = 70.0f; // クリティカル判定中央値
     public float _criticalRange = 10.0f;
 
+    [Header("----- クリティカル倍率 -----")]
+    public float _criticalScale = 1.5f;
+
     [Header("----- スタン時間 -----")]
     public float  _timeStanned = 0.5f;
     private float _timerStanned = 0.0f;
 
-    // Start is called before the first frame update
+    // ----- レベルについて -----
+    [System.Serializable]
+    public struct Level
+    {
+        public float speed;
+        public float comboRange;
+        public float criticalRange;
+        public bool isRandom;
+    }
+
+    [Header("----- レベルについて -----")]
+    [Header("speed     ... バーの速度\n"
+          + "comboRange... コンボ区域の幅\n"
+          + "criticalRange... クリティカル区域の幅\n"
+          + "isRandom  ... バーの増加がランダムになる"
+        )]
+    public Level[] _levels = new Level[20];
+    private float _speed = 1.0f;
+
+    private float _timerCurve = 0.0f; // カーブ用
+    private AnimationCurve _currentCurve;
+    public AnimationCurve _curveNormal = new AnimationCurve();
+    public AnimationCurve[] _curves = new AnimationCurve[3];
+
     void Start()
     {
         _slider = GetComponent<Slider>();
+        _currentCurve = _curveNormal;
 
         // ゲージ反映
         _slider.value = _nowValue / _maxValue;
@@ -98,14 +123,41 @@ public class PoundGaugeState : MonoBehaviour
     // --------------------------------------------------
     // プレイ中の処理
     // --------------------------------------------------
+    // レベル反映処理
+    private void SetLevel()
+    {
+        // コンボ数からスピード、レンジを設定
+        int index = _comboCount;
+        if (index < 0) index = 0;
+        if (index >= _levels.Length) index = _levels.Length - 1;
+
+        _speed = _levels[index].speed;
+        _comboRange = _levels[index].comboRange;
+        _criticalRange = _levels[index].criticalRange;
+        if (_levels[index].isRandom)
+        {
+            int random = Random.Range(0, _curves.Length);
+            _currentCurve = _curves[random];
+        }
+        else
+        {
+            _currentCurve = _curveNormal;
+        }
+    }
+
+    // 増加処理
     private void IncreaseGaugeValue()
     {
         // 増加処理
-        _nowValue += 30.0f * Time.deltaTime;
+        _timerCurve += _speed * Time.deltaTime;
+        //_nowValue += _speed * Time.deltaTime;
+        _nowValue = _currentCurve.Evaluate(_timerCurve) * _maxValue;
+
         // ゲージ反映処理
         _slider.value = _nowValue / _maxValue;
         if (_nowValue >= _maxValue)
         {
+            _timerCurve = 0.0f;
             _nowValue = 0.0f;
         }
     }
@@ -126,12 +178,11 @@ public class PoundGaugeState : MonoBehaviour
                 _kneadGauge._state = KneadGaugeState.State.Stanned;
 
                 // ゲージ初期化
+                _timerCurve = 0.0f;
                 _nowValue = 0.0f;
 
                 // コンボ減少
-                _comboCount -= 5;
-                if (_comboCount <= 0)
-                    _comboCount = 0;
+                AddComboCount(-8);
 
                 // スタンエフェクト表示
                 CreateEffectStanned();
@@ -141,19 +192,19 @@ public class PoundGaugeState : MonoBehaviour
             // ----- コンボ判定 -----
             if (_nowValue >= _comboValue - _comboRange && _nowValue <= _comboValue + _comboRange)
             {
-                _comboCount++;
+                AddComboCount(1);
             }
             else // コンボ減少処理
             {
-                _comboCount -= 3;
-                if (_comboCount <= 0)
-                    _comboCount = 0;
+                AddComboCount(-5);
             }
             // ----- クリティカル判定 -----
             float scaleCritical = 1.0f;
+            float scaleDecrease = 1.0f;
             if (_nowValue >= _criticalValue - _criticalRange && _nowValue <= _criticalValue + _criticalRange)
             {
-                scaleCritical = 2.0f;
+                scaleCritical = _criticalScale;
+                scaleDecrease = 1.5f;
             }
 
             // ----- コンボ数表示 -----
@@ -166,16 +217,29 @@ public class PoundGaugeState : MonoBehaviour
             _mochiGauge.IncreaseValue(scaleCritical, kneadBonus);
 
             // ----- ゲージ初期化処理 -----
+            _timerCurve = 0.0f;
             _nowValue = 0.0f;
 
             // ----- こねこねゲージ減少 -----
-            _kneadGauge.DecreaseValue(1.0f);
+            _kneadGauge.DecreaseValue(scaleDecrease);
 
             // ----- つき状態へ -----
             _state = State.Pound;
         }
     }
 
+    // スコア増加
+    private void AddComboCount(int num)
+    {
+        _comboCount += num;
+        if (_comboCount <= 0)
+            _comboCount = 0;
+
+        // レベルセット
+        SetLevel();
+    }
+
+    // コンボテキスト生成
     private void CreateTextCombo()
     {
         GameObject clone = Instantiate(_prefabTextCombo);
@@ -185,7 +249,7 @@ public class PoundGaugeState : MonoBehaviour
         clone.transform.position = position;
         clone.GetComponent<TextFloatUp>()._numberDisplay = _comboCount;
     }
-
+    // スタンエフェクト生成
     private void CreateEffectStanned()
     {
         GameObject clone = Instantiate(_prefabEffecStanned);
