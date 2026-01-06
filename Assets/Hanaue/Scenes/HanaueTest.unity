@@ -1237,6 +1237,7 @@ MonoBehaviour:
   _comboRange: 20
   _criticalValue: 70
   _criticalRange: 10
+  _criticalScale: 1.5
   _timeStanned: 0.5
   _levels:
   - speed: 1
