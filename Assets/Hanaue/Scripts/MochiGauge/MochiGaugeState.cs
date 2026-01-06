@@ -45,4 +45,10 @@ public class MochiGaugeState : MonoBehaviour
         _slider.value = _nowValue / _maxValue;
     }
 
+    // ƒNƒŠƒA”»’è
+    public bool CheckGameClear()
+    {
+        return _nowValue >= _maxValue;
+    }
+
 }

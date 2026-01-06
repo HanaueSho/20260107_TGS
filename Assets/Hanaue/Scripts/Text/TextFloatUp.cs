@@ -10,17 +10,25 @@ public class TextFloatUp : MonoBehaviour
     public string _textDisplay; // 表示テキスト
     [Header("表示数字")]
     public float _numberDisplay; // 表示スコア
+    [Header("数字を使用するか")]
+    public bool _isNumberEnable = true;
     [Header("数字の前後")]
     public bool _isNumberForward = true; // 数字が前か後ろか設定フラグ
+    
     private float _timer = 0.0f; // タイマー
+
     [Header("上昇時間(second)")]
     public float _floatingTime   = 1.0f; // 時間
     [Header("上昇距離(pixel)")]
     public float _floatingLength = 1.0f; // 距離
+
     [Header("上昇カーブ")]
     public AnimationCurve _floating =  new AnimationCurve();
     [Header("フェードカーブ")]
     public AnimationCurve _fade     =  new AnimationCurve();
+    [Header("縮尺カーブ")]
+    public AnimationCurve _scale    =  new AnimationCurve();
+
 
     private Vector3 _positionBase = Vector3.zero;
 
@@ -31,7 +39,11 @@ public class TextFloatUp : MonoBehaviour
         // 取得
         _textMeshPro = GetComponent<TextMeshProUGUI>();
 
-        if (_isNumberForward)
+        if (!_isNumberEnable) // 数字は使用しないのでテキストのみ適用
+        {
+            _textMeshPro.text = _textDisplay;
+        }
+        else if (_isNumberForward)
         {
             _textMeshPro.text = _numberDisplay.ToString();
             _textMeshPro.text += _textDisplay;
@@ -60,7 +72,14 @@ public class TextFloatUp : MonoBehaviour
         color.a = 1 - _fade.Evaluate(_timer);
         _textMeshPro.color = color;
 
-        if (_timer > _floatingTime)
+        // 縮尺反映
+        Vector3 scale = Vector3.one;
+        scale.x = _scale.Evaluate(_timer);
+        scale.y = _scale.Evaluate(_timer);
+        scale.z = _scale.Evaluate(_timer);
+        _textMeshPro.GetComponent<RectTransform>().localScale = scale;
+
+        if (_timer >= _floatingTime)
         {
             Destroy(this.gameObject);
         }
