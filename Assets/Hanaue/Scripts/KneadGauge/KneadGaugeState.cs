@@ -25,6 +25,7 @@ public class KneadGaugeState : MonoBehaviour
     private AudioSource _audioSource;
     [Header("----- è“®‚ÅŒø‰Ê‰¹‚ğİ’è -----")]
     public AudioClip[] _clipKnead;
+    public AudioClip _clipKneadNormal;
 
     // ----- ƒoƒŠƒ…[‚É‚Â‚¢‚Ä -----
     private float _maxValue = 100.0f;
@@ -83,8 +84,11 @@ public class KneadGaugeState : MonoBehaviour
                 }
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
+                    _audioSource.Stop();
+                    // Ä¶ˆ—
                     int random = Random.Range(0, _clipKnead.Length);
                     _audioSource.PlayOneShot(_clipKnead[random]);
+                    _audioSource.PlayOneShot(_clipKneadNormal);
                 }
                 break;
             case State.Knead:

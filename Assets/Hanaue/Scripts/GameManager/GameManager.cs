@@ -38,6 +38,15 @@ public class GameManager : MonoBehaviour
     public AudioClip _clipStart;
     public AudioClip _bgmResult;
 
+    [Header("----- 手動でリザルト関係を設定 -----")]
+    public Image _resultEnd;
+    public ResultScoreState _resultScore;
+    public TextMeshProUGUI  _resultText;
+    public ButtonChangeScene _buttonToTitle;
+    public ButtonChangeScene _buttonRetry;
+    private float _timerResult = 0.0f;
+    private bool _isFallScore = false;
+
     [Header("カウントダウンスケール")]
     public float _scaleCountdown = 1.0f;
     private float _timerCountDown = 1.0f;
@@ -93,6 +102,7 @@ public class GameManager : MonoBehaviour
                 }
                 break;
             case State.Clear:
+                Result();
                 break;
             case State.FadeOut:
                 FadeOut();
@@ -100,6 +110,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // フェード処理
     private void FadeIn()
     {
         _timerFade += Time.deltaTime;
@@ -125,6 +136,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // カウントダウン処理
     private void Countdown()
     {
         _timerCountDown += Time.deltaTime * _scaleCountdown;
@@ -160,6 +172,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // カウントダウン生成
     private void CreateTextCountdown(int num)
     {
         GameObject clone = Instantiate(_prefabTextCountdown);
@@ -174,12 +187,47 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // 経過時間
     private void CountTimer()
     {
         _timerPlaying += Time.deltaTime;
 
         // 反映
         _textTimer.text = _timerPlaying.ToString("0.00");
+    }
+
+    // リザルト処理
+    private void Result()
+    {
+        // リザルトエンドの表示
+        if (_timerResult == 0.0f)
+        {
+            _resultEnd.gameObject.SetActive(true); 
+        }
+        
+        // 時間経過
+        _timerResult += Time.deltaTime;
+
+        // リザルトスコアの落下処理
+        if (_timerResult > 1.0f && !_isFallScore)
+        {
+            _resultScore.StartFall();
+            _isFallScore = true;
+        }
+
+        // リザルトスコア表示
+        if (_timerResult > 2.5f)
+        {
+            _resultText.gameObject.SetActive(true);
+            _resultText.text = _timerPlaying.ToString("0.00");
+        }
+
+        // ボタン有効化
+        if (_timerResult > 3.0f)
+        {
+            _buttonRetry.gameObject.SetActive(true);
+            _buttonToTitle.gameObject.SetActive(true);
+        }
     }
 
 }

@@ -27,14 +27,21 @@ public class PoundGaugeState : MonoBehaviour
     public KneadGaugeState _kneadGauge;
     public MochiGaugeState _mochiGauge;
 
+    [Header("----- 手動でうすを設定 -----")]
+    public UsuShake _usu;
+
     [Header("----- 手動でプレファブを設定 -----")]
     public GameObject _prefabTextCombo;
+    public GameObject _prefabTextCritical;
     public GameObject _prefabEffecStanned;
 
     private AudioSource _audioSource;
     [Header("----- 手動で効果音を設定 -----")]
-    public AudioClip[] _clipPound;
-    public AudioClip[] _clipStanned;
+    public AudioClip[] _clipPoundVoice;
+    public AudioClip[] _clipStannedVoice;
+    public AudioClip _clipPoundNormal;
+    public AudioClip[] _clipCombo;
+    public AudioClip _clipCritical;
 
     [Header("----- コンボ数 -----")]
     public int _comboCount = 0;
@@ -195,16 +202,24 @@ public class PoundGaugeState : MonoBehaviour
                 CreateEffectStanned();
 
                 // 効果音再生
-                int rand = Random.Range(0, _clipStanned.Length);
-                _audioSource.PlayOneShot(_clipStanned[rand]);
+                int rand = Random.Range(0, _clipStannedVoice.Length);
+                _audioSource.PlayOneShot(_clipStannedVoice[rand]);
 
                 return;
             }
 
             // ----- コンボ判定 -----
+            int shakeIndex = 0;
             if (_nowValue >= _comboValue - _comboRange && _nowValue <= _comboValue + _comboRange)
             {
                 AddComboCount(1);
+                // 効果音再生
+                int index = 0;
+                if      (_comboCount > 5) index = 1;
+                else if (_comboCount > 10) index = 2;
+                _audioSource.PlayOneShot(_clipCombo[index]);
+
+                shakeIndex = 1;
             }
             else // コンボ減少処理
             {
@@ -217,14 +232,23 @@ public class PoundGaugeState : MonoBehaviour
             {
                 scaleCritical = _criticalScale;
                 scaleDecrease = 1.5f;
+                CreateTextCritical();
+                // 効果音再生
+                _audioSource.PlayOneShot(_clipCritical);
+
+                shakeIndex = 2;
             }
 
             // ----- コンボ数表示 -----
             CreateTextCombo();
 
+            // ----- コンボ数表示 -----
+            _usu.Shake(shakeIndex);
+
             // ----- 効果音再生 -----
-            int random = Random.Range(0, _clipPound.Length);
-            _audioSource.PlayOneShot(_clipPound[random]);
+            int random = Random.Range(0, _clipPoundVoice.Length);
+            _audioSource.PlayOneShot(_clipPoundVoice[random]);
+            _audioSource.PlayOneShot(_clipPoundNormal);
 
             // ----- こねこねゲージグッド判定 -----
             float kneadBonus = _kneadGauge.GetBonusKnead();
@@ -265,11 +289,22 @@ public class PoundGaugeState : MonoBehaviour
         clone.transform.position = position;
         clone.GetComponent<TextFloatUp>()._numberDisplay = _comboCount;
     }
+    // クリティカルテキスト生成
+    private void CreateTextCritical()
+    {
+        GameObject clone = Instantiate(_prefabTextCritical);
+        clone.transform.SetParent(transform, false);
+        Vector3 position = transform.position;
+        position.y += 200.0f;
+        clone.transform.position = position;
+    }
+
     // スタンエフェクト生成
     private void CreateEffectStanned()
     {
         GameObject clone = Instantiate(_prefabEffecStanned);
         Vector3 position = Vector3.zero;
+        position.y -= 0.5f;
         clone.transform.position = position;
     }
 }
