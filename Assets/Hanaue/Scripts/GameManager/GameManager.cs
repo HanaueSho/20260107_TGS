@@ -32,6 +32,12 @@ public class GameManager : MonoBehaviour
     [Header("----- 手動でカウントダウンテキストを設定 -----")]
     public GameObject _prefabTextCountdown;
 
+    private AudioSource _audioSource;
+    [Header("----- 手動で効果音を設定 -----")]
+    public AudioClip _clipCountdown;
+    public AudioClip _clipStart;
+    public AudioClip _bgmResult;
+
     [Header("カウントダウンスケール")]
     public float _scaleCountdown = 1.0f;
     private float _timerCountDown = 1.0f;
@@ -47,6 +53,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _audioSource = GetComponent<AudioSource>();
+
         // フェード画像の初期化処理
         Color color = Color.black;
         color.a = 1.0f;
@@ -72,6 +80,7 @@ public class GameManager : MonoBehaviour
                 // クリア判定
                 if (_mochiGauge.CheckGameClear())
                 {
+                    // ステート遷移
                     _state = State.Clear;
 
                     // 各ゲージのステート設定
@@ -79,7 +88,8 @@ public class GameManager : MonoBehaviour
                     _poundGauge._state = PoundGaugeState.State.NoPlay;
 
                     // リザルト表示
-
+                    _audioSource.Stop();
+                    _audioSource.PlayOneShot(_bgmResult); // リザルト
                 }
                 break;
             case State.Clear:
@@ -129,6 +139,11 @@ public class GameManager : MonoBehaviour
             CreateTextCountdown(3 - _countdownCount);
 
             // 効果音再生
+            if (_countdownCount == 3)
+                _audioSource.PlayOneShot(_clipStart);
+            else
+                _audioSource.PlayOneShot(_clipCountdown);
+
 
             // カウント
             _countdownCount++;

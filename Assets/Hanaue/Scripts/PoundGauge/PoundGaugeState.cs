@@ -31,6 +31,11 @@ public class PoundGaugeState : MonoBehaviour
     public GameObject _prefabTextCombo;
     public GameObject _prefabEffecStanned;
 
+    private AudioSource _audioSource;
+    [Header("----- 手動で効果音を設定 -----")]
+    public AudioClip[] _clipPound;
+    public AudioClip[] _clipStanned;
+
     [Header("----- コンボ数 -----")]
     public int _comboCount = 0;
 
@@ -82,6 +87,8 @@ public class PoundGaugeState : MonoBehaviour
     {
         _slider = GetComponent<Slider>();
         _currentCurve = _curveNormal;
+
+        _audioSource = GetComponent<AudioSource>();
 
         // ゲージ反映
         _slider.value = _nowValue / _maxValue;
@@ -186,6 +193,11 @@ public class PoundGaugeState : MonoBehaviour
 
                 // スタンエフェクト表示
                 CreateEffectStanned();
+
+                // 効果音再生
+                int rand = Random.Range(0, _clipStanned.Length);
+                _audioSource.PlayOneShot(_clipStanned[rand]);
+
                 return;
             }
 
@@ -209,6 +221,10 @@ public class PoundGaugeState : MonoBehaviour
 
             // ----- コンボ数表示 -----
             CreateTextCombo();
+
+            // ----- 効果音再生 -----
+            int random = Random.Range(0, _clipPound.Length);
+            _audioSource.PlayOneShot(_clipPound[random]);
 
             // ----- こねこねゲージグッド判定 -----
             float kneadBonus = _kneadGauge.GetBonusKnead();

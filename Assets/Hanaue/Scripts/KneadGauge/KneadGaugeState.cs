@@ -22,6 +22,10 @@ public class KneadGaugeState : MonoBehaviour
     [Header("----- 手動で設定 -----")]
     public PlayerChangeSprite _playerChangeSprite;
 
+    private AudioSource _audioSource;
+    [Header("----- 手動で効果音を設定 -----")]
+    public AudioClip[] _clipKnead;
+
     // ----- バリューについて -----
     private float _maxValue = 100.0f;
     [Header("----- 現在の値（0~100） -----")]
@@ -52,6 +56,8 @@ public class KneadGaugeState : MonoBehaviour
     {
         _slider = GetComponent<Slider>();
 
+        _audioSource = GetComponent<AudioSource>();
+
         // ゲージ反映
         _slider.value = _nowValue / _maxValue;
     }
@@ -73,8 +79,12 @@ public class KneadGaugeState : MonoBehaviour
                     // アニメーション再生処理
                     _playerChangeSprite.ChangeSprite(1);
 
-
                     _state = State.Knead;
+                }
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    int random = Random.Range(0, _clipKnead.Length);
+                    _audioSource.PlayOneShot(_clipKnead[random]);
                 }
                 break;
             case State.Knead:
