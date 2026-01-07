@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -36,6 +37,9 @@ public class GameManager : MonoBehaviour
     [Header("----- 手動で効果音を設定 -----")]
     public AudioClip _clipCountdown;
     public AudioClip _clipStart;
+    public AudioClip _clipToTitle;
+    public AudioClip _clipRetry;
+    public AudioClip _clipGameEnd;
     public AudioClip _bgmResult;
 
     [Header("----- 手動でリザルト関係を設定 -----")]
@@ -58,6 +62,9 @@ public class GameManager : MonoBehaviour
 
     [Header("経過時間")]
     public float _timerPlaying = 0.0f;
+
+    // 画面遷移制御
+    public int _sceneId = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -132,7 +139,12 @@ public class GameManager : MonoBehaviour
         if (_timerFade > _timeFade)
         {
             _timerFade = 0.0f;
-            _state = State.Countdown;
+
+            // ----- シーンチェンジ -----
+            if (_sceneId == 0) // リトライ
+                SceneManager.LoadScene("GameScene");
+            else if (_sceneId == 1) // タイトル
+                SceneManager.LoadScene("TitleScene");
         }
     }
 
@@ -202,7 +214,10 @@ public class GameManager : MonoBehaviour
         // リザルトエンドの表示
         if (_timerResult == 0.0f)
         {
-            _resultEnd.gameObject.SetActive(true); 
+            _resultEnd.gameObject.SetActive(true);
+
+            // SE 再生
+            _audioSource.PlayOneShot(_clipGameEnd);
         }
         
         // 時間経過
@@ -230,4 +245,32 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ToTitle()
+    {
+        if (_state == State.Clear)
+        {
+            // SE 再生
+            _audioSource.PlayOneShot(_clipToTitle);
+
+            // state 移行
+            _state = State.FadeOut;
+
+            // ID 設定
+            _sceneId = 1;
+        }
+    }
+    public void Retry()
+    {
+        if (_state == State.Clear)
+        {
+            // SE 再生
+            _audioSource.PlayOneShot(_clipRetry);
+
+            // state 移行
+            _state = State.FadeOut;
+
+            // ID 設定
+            _sceneId = 0;
+        }
+    }
 }

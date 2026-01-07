@@ -42,6 +42,7 @@ public class PoundGaugeState : MonoBehaviour
     public AudioClip _clipPoundNormal;
     public AudioClip[] _clipCombo;
     public AudioClip _clipCritical;
+    public AudioClip _clipStanned;
 
     [Header("----- ƒRƒ“ƒ{” -----")]
     public int _comboCount = 0;
@@ -204,6 +205,7 @@ public class PoundGaugeState : MonoBehaviour
                 // Œø‰Ê‰¹Ä¶
                 int rand = Random.Range(0, _clipStannedVoice.Length);
                 _audioSource.PlayOneShot(_clipStannedVoice[rand]);
+                _audioSource.PlayOneShot(_clipStanned);
 
                 return;
             }

@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Seino/Scenes/SeinoTest.unity
     guid: c8fc04d114714b24ebf4a5694d6fcff5
   - enabled: 1
-    path: Assets/Hanaue/Scenes/HanaueTest.unity
+    path: Assets/Hanaue/Scenes/GameScene.unity
     guid: 8340bf37ef28b1f4d951882dad96a8f3
+  - enabled: 1
+    path: Assets/Hanaue/Scenes/TitleScene.unity
+    guid: 7ad25f5f8be4d534f88102ee65453ebf
   m_configObjects: {}
