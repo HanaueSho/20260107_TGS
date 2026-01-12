@@ -27,6 +27,10 @@ public class ResultScoreState : MonoBehaviour
     void Start()
     {
         _basePosition = transform.GetComponent<RectTransform>().position;
+
+        // —Ž‰º‹——£ŒvŽZ
+        _lengthFall = transform.GetComponent<RectTransform>().anchoredPosition.y;
+
     }
 
     // Update is called once per frame

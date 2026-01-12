@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using unityroom.Api;
 
 public class GameManager : MonoBehaviour
 {
@@ -66,6 +67,9 @@ public class GameManager : MonoBehaviour
     // 画面遷移制御
     public int _sceneId = 0;
 
+    // ベーススコアアップフラグ
+    private bool _isIncreaseBaseScore = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -93,6 +97,9 @@ public class GameManager : MonoBehaviour
             case State.Playing:
                 CountTimer();
 
+                // もちもちベーススコアアップ処理
+                IncreaseBaseScore();
+
                 // クリア判定
                 if (_mochiGauge.CheckGameClear())
                 {
@@ -106,6 +113,9 @@ public class GameManager : MonoBehaviour
                     // リザルト表示
                     _audioSource.Stop();
                     _audioSource.PlayOneShot(_bgmResult); // リザルト
+
+                    // リザルト送信
+                    UnityroomApiClient.Instance.SendScore(1, _timerPlaying, ScoreboardWriteMode.HighScoreAsc);
                 }
                 break;
             case State.Clear:
@@ -273,4 +283,17 @@ public class GameManager : MonoBehaviour
             _sceneId = 0;
         }
     }
+
+    private void IncreaseBaseScore()
+    {
+        if (_isIncreaseBaseScore) return;
+
+        if ( _timerPlaying > 20.0f)
+        {
+            _mochiGauge.IncreaseBaseScore();
+            _isIncreaseBaseScore = true;
+        }
+    }
+
+
 }

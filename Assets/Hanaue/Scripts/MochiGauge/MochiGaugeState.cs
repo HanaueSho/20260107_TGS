@@ -51,4 +51,10 @@ public class MochiGaugeState : MonoBehaviour
         return _nowValue >= _maxValue;
     }
 
+    // ベーススコア上昇
+    public void IncreaseBaseScore()
+    {
+        _baseIncreaseValue *= 2.0f;
+    }
+
 }
