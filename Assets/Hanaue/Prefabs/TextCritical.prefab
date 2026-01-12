@@ -152,7 +152,7 @@ MonoBehaviour:
   _isNumberEnable: 0
   _isNumberForward: 1
   _floatingTime: 1
-  _floatingLength: 70
+  _floatingLength: 20
   _floating:
     serializedVersion: 2
     m_Curve:

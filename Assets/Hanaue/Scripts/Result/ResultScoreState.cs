@@ -17,23 +17,21 @@ public class ResultScoreState : MonoBehaviour
     private float _timerFall = 0.0f;
 
     [Header("落下距離")]
-    public float _lengthFall = 1000.0f;
+    public float _lengthFall = 0.0f;
     public AnimationCurve _curveFall = new AnimationCurve();
 
     // ベース位置
     private Vector3 _basePosition;
 
-    // Start is called before the first frame update
     void Start()
     {
-        _basePosition = transform.GetComponent<RectTransform>().position;
+        _basePosition = transform.GetComponent<RectTransform>().anchoredPosition;
 
         // 落下距離計算
         _lengthFall = transform.GetComponent<RectTransform>().anchoredPosition.y;
 
     }
 
-    // Update is called once per frame
     void Update()
     {
         switch (_state)
@@ -63,20 +61,17 @@ public class ResultScoreState : MonoBehaviour
         // 位置反映
         Vector3 position = _basePosition;
         position.y -= _lengthFall * _curveFall.Evaluate(_timerFall);
-        transform.GetComponent<RectTransform>().position = position;
+        transform.GetComponent<RectTransform>().anchoredPosition = position;
 
         // 終了処理
-        if ( _timerFall >= _timeFall)
+        if ( _timerFall >= 1.0f)
         {
             // 位置補正
             position = _basePosition;
             position.y -= _lengthFall;
-            transform.GetComponent<RectTransform>().position = position;
+            transform.GetComponent<RectTransform>().anchoredPosition = position;
 
             _state = State.Wait;
         }
     }
-
-
-
 }
